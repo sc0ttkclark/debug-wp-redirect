@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Debug wp_redirect
-Plugin URI: http://scottkclark.com/
+Plugin URI: https://www.scottkclark.com/
 Description: Outputs information about each wp_redirect call done on the front of a site
 Version: 1.1
 Author: Scott Kingsley Clark
-Author URI: http://scottkclark.com/
+Author URI: https://www.scottkclark.com/
 Text Domain: debug-wp-redirect
 
 This program is free software; you can redistribute it and/or modify
