@@ -3,9 +3,10 @@
 Plugin Name: Debug wp_redirect
 Plugin URI: http://scottkclark.com/
 Description: Outputs information about each wp_redirect call done on the front of a site
-Version: 1.0
+Version: 1.1
 Author: Scott Kingsley Clark
-Plugin URI: http://scottkclark.com/
+Author URI: http://scottkclark.com/
+Text Domain: debug-wp-redirect
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,61 +23,181 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-if ( !is_admin() )
-    add_action( 'wp_redirect', 'debug_wp_redirect', 10, 2 );
+$debug_disabled = false;
+$debug_admin = false;
 
-function debug_wp_redirect ( $location, $status ) {
-    echo "<h4>Debug WP Redirect</h4>\n";
-    echo "<strong>Location:</strong> {$location}<br />\n";
-    echo "<strong>Status:</strong> {$status}<br />\n";
-
-    echo "<strong>Backtrace:</strong><br />\n";
-
-    $backtrace = debug_backtrace();
-
-    // Take out everything after wp_redirect runs
-    unset( $backtrace[ 0 ] );
-    unset( $backtrace[ 1 ] );
-    unset( $backtrace[ 2 ] );
-    unset( $backtrace[ 3 ] );
-
-    debug_wp_redirect_backtrace( $backtrace );
+// Allow disabling of debugging entirely (default: disabled)
+if ( ! defined( 'DEBUG_WP_REDIRECT' ) || ! DEBUG_WP_REDIRECT ) {
+	$debug_disabled = true;
 }
 
-function debug_wp_redirect_backtrace ( $backtrace ) {
-    if ( !empty( $backtrace ) ) {
-        echo "<ul>\n";
+// Allow debugging of admin (default: disabled)
+if ( defined( 'DEBUG_WP_REDIRECT_ADMIN' ) && DEBUG_WP_REDIRECT_ADMIN ) {
+	$debug_admin = true;
+}
 
-        foreach ( $backtrace as $function ) {
-            echo "\t<li>\n";
+if ( ! $debug_disabled && ( ! is_admin() || $debug_admin )  ) {
+	add_action( 'wp_redirect', 'debug_wp_redirect', 10, 2 );
+}
 
-            if ( isset( $function[ 'file' ] ) )
-                echo "\t\t<strong>File:</strong> {$function['file']}<br />\n";
+/**
+ * Output debug backtrace of wp_redirect() in a readable format.
+ *
+ * @param string $location The path to redirect to.
+ * @param int    $status   Status code to use.
+ *
+ * @since 1.0
+ */
+function debug_wp_redirect( $location, $status ) {
 
-            if ( isset( $function[ 'line' ] ) )
-                echo "\t\t<strong>Line:</strong> #{$function['line']}<br />\n";
+	$logged_in = __( 'No', 'debug-wp-redirect' );
 
-            if ( isset( $function[ 'class' ] ) )
-                echo "\t\t<strong>Class:</strong> #{$function['class']}<br />\n";
+	if ( is_user_logged_in() ) {
+		$logged_in = __( 'Yes', 'debug-wp-redirect' );
+	}
 
-            if ( isset( $function[ 'object' ] ) )
-                echo "\t\t<strong>Object:</strong> #{$function['object']}<br />\n";
+	$stats = array(
+		__( 'Location', 'debug-wp-redirect' )       => $location,
+		__( 'Status', 'debug-wp-redirect' )         => $status,
+		__( 'User Logged In', 'debug-wp-redirect' ) => $logged_in,
+	);
 
-            if ( isset( $function[ 'type' ] ) )
-                echo "\t\t<strong>Type:</strong> #{$function['type']}<br />\n";
+	if ( is_user_logged_in() ) {
+		$stats[ __( 'User ID', 'debug-wp-redirect' ) ] = get_current_user_id();
+	}
 
-            echo "\t\t<strong>Function:</strong> {$function['function']}<br />\n";
+	printf(
+		'<h1>%s</h1>' . "\n",
+		esc_html__( 'Debug WP Redirect', 'debug-wp-redirect' )
+	);
 
-            echo "\t\t<strong>Arguments:</strong>\n";
-            echo "<pre>\n";
-            var_dump( $function[ 'args' ] );
-            echo "</pre>\n";
+	foreach ( $stats as $stat => $value ) {
+		printf(
+			'<h2>%s</h2>' . "\n"
+			. '<p>%s</p>' . "\n",
+			esc_html( $stat ),
+			esc_html( $value )
+		);
+	}
 
-            echo "\t</li>\n";
-        }
+	$backtrace = debug_backtrace();
 
-        echo "</ul>\n";
-    }
-    else
-        echo "<em>No backtrace</em>\n";
+	// Take out everything after wp_redirect runs
+	unset( $backtrace[0] );
+	unset( $backtrace[1] );
+	unset( $backtrace[2] );
+
+	$debug_backtrace = debug_wp_redirect_backtrace( $backtrace );
+
+	printf(
+		'<h2>%s</h2>' . "\n"
+		. '%s' . "\n",
+		esc_html__( 'Backtrace', 'debug-wp-redirect' ),
+		$debug_backtrace
+	);
+
+}
+
+/**
+ * Parse debug_backtrace() array information and return in a readable format.
+ *
+ * @param array $backtrace
+ *
+ * @return string
+ *
+ * @since 1.0
+ */
+function debug_wp_redirect_backtrace( $backtrace ) {
+
+	if ( ! empty( $backtrace ) ) {
+		$debug_backtrace = array(
+			'<ul>',
+		);
+
+		$level = 1;
+
+		foreach ( $backtrace as $function ) {
+			$debug_backtrace[] = "\t" . '<li>';
+
+			$debug_backtrace[] = sprintf(
+				"\t\t" . '<strong>%s</strong>' . "\n",
+				sprintf(
+					esc_html__( 'Level %d', 'debug-wp-redirect' ),
+					$level
+				)
+			);
+
+			$debug_backtrace[] = "\t\t" . '<ul>';
+
+			$stats = array();
+
+			if ( isset( $function['file'] ) ) {
+				$stats[ __( 'File', 'debug-wp-redirect' ) ] = $function['file'];
+			}
+
+			if ( isset( $function['line'] ) ) {
+				$stats[ __( 'Line', 'debug-wp-redirect' ) ] = sprintf(
+					'#%s',
+					$function['line']
+				);
+			}
+
+			if ( isset( $function['class'] ) ) {
+				$stats[ __( 'Class', 'debug-wp-redirect' ) ] = $function['class'];
+			}
+
+			if ( isset( $function['object'] ) ) {
+				if ( is_object( $function['object'] ) ) {
+					$function['object'] = get_class( $function['object'] );
+				}
+
+				$stats[ __( 'Object', 'debug-wp-redirect' ) ] = $function['object'];
+			}
+
+			if ( isset( $function['type'] ) ) {
+				$stats[ __( 'Type', 'debug-wp-redirect' ) ] = $function['type'];
+			}
+
+			$stats[ __( 'Function', 'debug-wp-redirect' ) ] = $function['function'];
+
+			foreach ( $stats as $stat => $value ) {
+				$debug_backtrace[] = sprintf(
+					"\t\t\t" . '<li><strong>%s</strong>: %s</li>' . "\n",
+					esc_html( $stat ),
+					esc_html( $value )
+				);
+			}
+
+			ob_start();
+			var_dump( $function['args'] );
+			$args_value = ob_get_clean();
+
+			$debug_backtrace[] = sprintf(
+				"\t\t\t" . '<li><strong>%s</strong>:' . "\n"
+				. "\t\t\t\t" . '<pre>' . "\n"
+				. '%s'
+				. '</pre>' . "\n"
+				. "\t\t\t" . '</li>' . "\n",
+				esc_html__( 'Function Arguments', 'debug-wp-redirect' ),
+				$args_value
+			);
+
+			$debug_backtrace[] = "\t\t" . '</ul>';
+			$debug_backtrace[] = "\t" . '</li>';
+
+			$level++;
+		}
+
+		$debug_backtrace[] = '</ul>';
+
+		$debug_backtrace = implode( "\n", $debug_backtrace );
+	} else {
+		$debug_backtrace = sprintf(
+			'<em>%s</em>',
+			esc_html__( 'There was an unknown PHP issue with the backtrace of wp_redirect() using debug_backtrace()', 'debug-wp-redirect' )
+		);
+	}
+
+	return $debug_backtrace;
+
 }
