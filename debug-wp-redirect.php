@@ -3,7 +3,7 @@
 Plugin Name: Debug wp_redirect
 Plugin URI: https://www.scottkclark.com/
 Description: Outputs information about each wp_redirect call done on the front of a site
-Version: 1.1
+Version: 1.2
 Author: Scott Kingsley Clark
 Author URI: https://www.scottkclark.com/
 Text Domain: debug-wp-redirect
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 $debug_disabled = false;
-$debug_admin = false;
+$debug_admin    = false;
 
 // Allow disabling of debugging entirely (default: disabled)
 if ( ! defined( 'DEBUG_WP_REDIRECT' ) || ! DEBUG_WP_REDIRECT ) {
@@ -37,7 +37,29 @@ if ( defined( 'DEBUG_WP_REDIRECT_ADMIN' ) && DEBUG_WP_REDIRECT_ADMIN ) {
 }
 
 if ( ! $debug_disabled && ( ! is_admin() || $debug_admin )  ) {
+	debug_wp_redirect_enable();
+}
+
+/**
+ * Enable the wp_redirect debugging.
+ *
+ * @since 1.2
+ */
+function debug_wp_redirect_enable() {
+	if ( has_action( 'wp_redirect', 'debug_wp_redirect' ) ) {
+		return;
+	}
+	
 	add_action( 'wp_redirect', 'debug_wp_redirect', 10, 2 );
+}
+
+/**
+ * Disable the wp_redirect debugging.
+ *
+ * @since 1.2
+ */
+function debug_wp_redirect_disable() {
+	remove_action( 'wp_redirect', 'debug_wp_redirect' );
 }
 
 /**
