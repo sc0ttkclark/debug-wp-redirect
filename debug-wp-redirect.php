@@ -2,8 +2,8 @@
 /*
 Plugin Name: Debug wp_redirect()
 Plugin URI: https://www.scottkclark.com/
-Description: Outputs information about each wp_redirect call done on the front of a site
-Version: 2.0
+Description: Stops and outputs information about redirects done on the front of a site and in the admin area with wp_redirect() and wp_safe_redirect().
+Version: 2.0.1
 Author: Scott Kingsley Clark
 Author URI: https://www.scottkclark.com/
 Text Domain: debug-wp-redirect
@@ -225,6 +225,19 @@ function debug_wp_redirect( $location, $status ) {
 		$debug_backtrace
 	);
 
+	printf(
+		'<h3>%1$s Debug wp_redirect()</h3>',
+		esc_html__( 'This was output using the WordPress redirect debugging tool', 'debug-wp-redirect' )
+	);
+
+	// Maybe show the link to manage the settings.
+	if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
+		printf(
+			'<p><a href="%1$s">%2$s &raquo;</a></p>',
+			esc_url( admin_url( 'options-general.php?page=debug-wp-redirect' ) ),
+			esc_html__( 'Go to the Dashboard > Settings > Debug wp_redirect() to disable this output', 'debug-wp-redirect' )
+		);
+	}
 }
 
 /**

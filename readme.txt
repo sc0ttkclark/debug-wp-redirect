@@ -3,9 +3,9 @@ Contributors: sc0ttkclark
 Donate link: https://www.scottkclark.com/
 Tags: wp_redirect, debug, redirects
 Requires at least: 4.5
-Tested up to: 5.7.2
+Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 2.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,9 +15,9 @@ What the.. Where'd that redirect come from? This plugin helps to uncover redirec
 
 *Important:* It is not recommended you leave debugging enabled when you're done, the debug information exposes file paths of files as well as PHP arguments passed into functions from the PHP `debug_backtrace()` which may contain sensitive information.
 
-This is useful for those times when you have a lot of plugins and theme functions interacting and you just need to figure out what / where it's redirecting.
+This is useful for those times when you have a lot of plugins / theme functions interacting that cause an unknown redirect. This tool helps you figure out what is redirecting and where it's redirecting at in the code.
 
-This plugin outputs information about each `wp_redirect()` call done on the front of a site.
+This plugin outputs information about each `wp_redirect()` and `wp_safe_redirect()` call done on the front and in the admin area of a site.
 
 = Usage: Enabling with the setting =
 
@@ -31,8 +31,8 @@ You can define constants in your wp-config.php file to enable redirect handling 
 
 * To enable redirect debugging on the frontend of a site: `define( 'DEBUG_WP_REDIRECT', true );`
 * To enable redirect debugging in the admin dashboard of a site: `define( 'DEBUG_WP_REDIRECT_ADMIN', true );`
-* To only show redirect debugging to logged in admins of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN', true );`
-* To only show redirect debugging to logged in users of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN', true );`
+* To only show redirect debugging to logged-in admins of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN', true );`
+* To only show redirect debugging to logged-in users of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN', true );`
 
 = Usage: Enabling debugging through PHP in your own code =
 
@@ -57,6 +57,10 @@ You can help to make this plugin better through [GitHub](https://github.com/sc0t
 OR you can just install it with WordPress by going to Plugins >> Add New >> and type this plugin's name
 
 == Changelog ==
+
+= 2.0.1 - March 5th, 2022 =
+* Updated the text on the debug output so that it includes where the debugging is coming from and gives a handy link to admins to disable the debugging output.
+* Updated compatibility with WordPress 5.9+
 
 = 2.0 - June 4th, 2021 =
 * Implemented new functions `debug_wp_redirect_enable()` and `debug_wp_redirect_disable()` to easily turn debugging on programmatically.
