@@ -226,8 +226,8 @@ function debug_wp_redirect( $location, $status ) {
 	);
 
 	printf(
-		'<h3>%1$s Debug wp_redirect()</h3>',
-		esc_html__( 'This was output using the WordPress redirect debugging tool', 'debug-wp-redirect' )
+		'<h3>%1$s: Debug wp_redirect()</h3>',
+		esc_html__( 'This output is coming from the debugging tool', 'debug-wp-redirect' )
 	);
 
 	// Maybe show the link to manage the settings.
