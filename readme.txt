@@ -59,7 +59,7 @@ OR you can just install it with WordPress by going to Plugins >> Add New >> and 
 
 == Changelog ==
 
-= 2.1 - TBD, 2022 =
+= 2.1 - March 11th, 2022 =
 * Added new option to only show debugging if the person is logged in as specific user ID(s).
 
 = 2.0.1 - March 5th, 2022 =
