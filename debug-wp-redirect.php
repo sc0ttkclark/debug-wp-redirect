@@ -3,7 +3,7 @@
 Plugin Name: Debug wp_redirect()
 Plugin URI: https://www.scottkclark.com/
 Description: Stops and outputs information about redirects done on the front of a site and in the admin area with wp_redirect() and wp_safe_redirect().
-Version: 2.0.1
+Version: 2.1
 Author: Scott Kingsley Clark
 Author URI: https://www.scottkclark.com/
 Text Domain: debug-wp-redirect
@@ -66,6 +66,34 @@ function debug_wp_redirect_disable() {
  * @return bool Whether a user is allowed to see wp_redirect debugging.
  */
 function debug_wp_redirect_is_user_allowed() {
+	// Check if we need to only debug if specific users that are logged in (default: none).
+	$logged_in_user_id_check = get_option( 'debug_wp_redirect_enable_logged_in_user_id', '' );
+
+	// Check network option.
+	if ( ! $logged_in_user_id_check && is_multisite() ) {
+		$logged_in_user_id_check = get_site_option( 'debug_wp_redirect_enable_logged_in_user_id', '' );
+	}
+
+	// Check constant.
+	if ( defined( 'DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID' ) ) {
+		$logged_in_user_id_check = DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID;
+	}
+
+	// Check if we need them to be logged in as an admin to debug, but they are not logged in or not an admin.
+	if ( ! empty( $logged_in_user_id_check ) ) {
+		$logged_in_user_id_check = explode( ',', $logged_in_user_id_check );
+		$logged_in_user_id_check = array_map( 'absint', $logged_in_user_id_check );
+		$logged_in_user_id_check = array_filter( $logged_in_user_id_check );
+
+		if ( ! empty( $logged_in_user_id_check ) ) {
+			if ( ! is_user_logged_in() ) {
+				return false;
+			}
+
+			return function_exists( 'is_user_logged_in' ) && is_user_logged_in() && in_array( get_current_user_id(), $logged_in_user_id_check, true );
+		}
+	}
+
 	// Check if we need to only debug if logged in as an admin (default: disabled).
 	$logged_in_admin_check = 1 === (int) get_option( 'debug_wp_redirect_enable_logged_in_admin', 0 );
 

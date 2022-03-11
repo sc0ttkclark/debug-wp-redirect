@@ -5,7 +5,7 @@ Tags: wp_redirect, debug, redirects
 Requires at least: 4.5
 Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 2.0.1
+Stable tag: 2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,10 +33,11 @@ You can define constants in your wp-config.php file to enable redirect handling 
 * To enable redirect debugging in the admin dashboard of a site: `define( 'DEBUG_WP_REDIRECT_ADMIN', true );`
 * To only show redirect debugging to logged-in admins of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN', true );`
 * To only show redirect debugging to logged-in users of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN', true );`
+* To only show redirect debugging to logged-in user ID(s) of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID', true );`
 
 = Usage: Enabling debugging through PHP in your own code =
 
-You can programmatically enable/disable debugging when you have your own code you want to start/stop debugging after a certain point.
+You can enable/disable debugging when you have your own code you want to start/stop debugging after a certain point.
 
 These functions will start/stop debugging the redirects whether it's on a frontend or admin dashboard request.
 
@@ -57,6 +58,9 @@ You can help to make this plugin better through [GitHub](https://github.com/sc0t
 OR you can just install it with WordPress by going to Plugins >> Add New >> and type this plugin's name
 
 == Changelog ==
+
+= 2.1 - TBD, 2022 =
+* Added new option to only show debugging if the person is logged in as specific user ID(s).
 
 = 2.0.1 - March 5th, 2022 =
 * Updated the text on the debug output so that it includes where the debugging is coming from and gives a handy link to admins to disable the debugging output.

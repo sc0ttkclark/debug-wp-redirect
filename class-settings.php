@@ -94,6 +94,7 @@ class Settings {
 		], 'debug-wp-redirect', 'debug-wp-redirect-settings-general', [
 			'label_for' => 'debug_wp_redirect_enable_frontend',
 			'name' => 'debug_wp_redirect_enable_frontend',
+			'label' => __( 'Enable debugging', 'debug-wp-redirect' ),
 			'type' => 'checkbox',
 			'description' => __( 'Enabling debugging on the frontend affects ALL submission forms like comments too.', 'debug-wp-redirect' ),
 		] );
@@ -104,6 +105,7 @@ class Settings {
 		], 'debug-wp-redirect', 'debug-wp-redirect-settings-general', [
 			'label_for' => 'debug_wp_redirect_enable_admin',
 			'name' => 'debug_wp_redirect_enable_admin',
+			'label' => __( 'Enable debugging', 'debug-wp-redirect' ),
 			'type' => 'checkbox',
 			'description' => __( 'Enabling debugging in the admin area affects ALL submission forms except for this settings page. Admin functionality will be broken from redirect debugging until it is turned back off.', 'debug-wp-redirect' ),
 		] );
@@ -116,6 +118,7 @@ class Settings {
 		], 'debug-wp-redirect', 'debug-wp-redirect-settings-visibility', [
 			'label_for' => 'debug_wp_redirect_enable_logged_in_admin',
 			'name' => 'debug_wp_redirect_enable_logged_in_admin',
+			'label' => __( 'Enable visibility', 'debug-wp-redirect' ),
 			'type' => 'checkbox',
 			'description' => __( 'If this is checked and the person is not logged in or an admin, they will be disallowed from seeing debug information.', 'debug-wp-redirect' ),
 		] );
@@ -126,8 +129,19 @@ class Settings {
 		], 'debug-wp-redirect', 'debug-wp-redirect-settings-visibility', [
 			'label_for' => 'debug_wp_redirect_enable_logged_in',
 			'name' => 'debug_wp_redirect_enable_logged_in',
+			'label' => __( 'Enable visibility', 'debug-wp-redirect' ),
 			'type' => 'checkbox',
 			'description' => __( 'If this is checked and the person is not logged in, they will be disallowed from seeing debug information. If the admin-only option is enabled then this will be disregarded.', 'debug-wp-redirect' ),
+		] );
+
+		add_settings_field( 'debug_wp_redirect_enable_logged_in_user_id', __( 'Specific logged in user ID(s) only', 'debug-wp-redirect' ), [
+			$this,
+			'field',
+		], 'debug-wp-redirect', 'debug-wp-redirect-settings-visibility', [
+			'label_for' => 'debug_wp_redirect_enable_logged_in_user_id',
+			'name' => 'debug_wp_redirect_enable_logged_in_user_id',
+			'type' => 'text',
+			'description' => __( 'Provide a comma separated list of user IDs to show debug information for. This overrides any other visibility settings above.', 'debug-wp-redirect' ),
 		] );
 	}
 
@@ -149,16 +163,34 @@ class Settings {
 
 		if ( 'checkbox' === $args['type'] ) {
 			echo sprintf(
+				'
+					<label for="%1$s">
+						<input
+							type="checkbox"
+							name="%1$s"
+							id="%1$s"
+							value="1"
+							%2$s
+						/>
+						%3$s
+					</label>
+				',
+				esc_attr( $args['name'] ),
+				checked( 1 === (int) $value, true, false ),
+				! empty( $args['label'] ) ? esc_html( $args['label'] ) : esc_html__( 'Enable', 'debug-wp-redirect' )
+			);
+		} elseif ( 'text' === $args['type'] ) {
+			echo sprintf(
 				'<input
-					type="checkbox"
+					type="text"
 					name="%s"
 					id="%s"
-					value="1"
-					%s
+					value="%s"
+					class="regular-text"
 				/>',
 				esc_attr( $args['name'] ),
 				esc_attr( $args['name'] ),
-				checked( 1 === (int) $value, true, false )
+				esc_attr( $value )
 			);
 		}
 
