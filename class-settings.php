@@ -85,6 +85,7 @@ class Settings {
 		register_setting( 'debug-wp-redirect-settings-group', 'debug_wp_redirect_enable_admin' );
 		register_setting( 'debug-wp-redirect-settings-group', 'debug_wp_redirect_enable_logged_in_admin' );
 		register_setting( 'debug-wp-redirect-settings-group', 'debug_wp_redirect_enable_logged_in' );
+		register_setting( 'debug-wp-redirect-settings-group', 'debug_wp_redirect_enable_logged_in_user_id' );
 
 		add_settings_section( 'debug-wp-redirect-settings-general', __( 'Enable Redirect Debugging', 'debug-wp-redirect' ), null, 'debug-wp-redirect' );
 
