@@ -25,20 +25,46 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 use Debug_WP_Redirect\Settings;
 
+/**
+ * Here are a few examples of things you can define in wp-config.php.
+ *
+ * You need at least one of these:
+ * define( 'DEBUG_WP_REDIRECT_ADMIN', true ); // Enable debugging for the dashboard area.
+ * define( 'DEBUG_WP_REDIRECT', true ); // Enable debugging for frontend.
+ *
+ * And then you can limit who sees the debugging messages with at least one of these:
+ * define( 'DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN', true ); // Enable debugging only for admin users.
+ * define( 'DEBUG_WP_REDIRECT_LOGGED_IN', true ); // Enable debugging only for logged in users (not needed if you enable DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN).
+ * define( 'DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID', true ); // Enable debugging only for specific logged in user IDs (comma-separated) (the DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN and DEBUG_WP_REDIRECT_LOGGED_IN not needed).
+ */
+
 define( 'DEBUG_WP_REDIRECT_PLUGIN_FILE', __FILE__ );
 define( 'DEBUG_WP_REDIRECT_PLUGIN_DIR', __DIR__ );
 
-function debug_wp_redirect_load() {
-    if (debug_wp_redirect_is_enabled()) {
+// Maybe enable WP Redirect debugging if the settings are enabled (if enabled for all users).
+if ( debug_wp_redirect_is_enabled() ) {
+    debug_wp_redirect_enable();
+}
+
+/**
+ * Maybe enable WP Redirect debugging if the settings are enabled (for logged in users).
+ *
+ * @since 2.101
+ */
+function debug_wp_redirect_maybe_load() {
+    if ( debug_wp_redirect_is_enabled() ) {
         debug_wp_redirect_enable();
     }
 }
 
-add_action( 'plugins_loaded', 'debug_wp_redirect_load' );
+add_action( 'plugins_loaded', 'debug_wp_redirect_maybe_load' );
 
-include_once DEBUG_WP_REDIRECT_PLUGIN_DIR . '/class-settings.php';
+// Allow for debug-wp-redirect.php to be loaded via a single file mu-plugin
+if ( file_exists( DEBUG_WP_REDIRECT_PLUGIN_DIR . '/class-settings.php' ) ) {
+    include_once DEBUG_WP_REDIRECT_PLUGIN_DIR . '/class-settings.php';
 
-Settings::instance();
+    Settings::instance();
+}
 
 /**
  * Enable the wp_redirect debugging.
@@ -129,7 +155,7 @@ function debug_wp_redirect_is_user_allowed() {
 		$logged_in_check = DEBUG_WP_REDIRECT_LOGGED_IN;
 	}
 
-	// Check if we need them to be logged in to debug, but they are not logged in.=
+	// Check if we need them to be logged in to debug, but they are not logged in.
 	return ! $logged_in_check || ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() );
 }
 
