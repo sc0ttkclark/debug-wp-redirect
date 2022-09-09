@@ -5,7 +5,7 @@ Tags: wp_redirect, debug, redirects
 Requires at least: 4.5
 Tested up to: 6.1
 Requires PHP: 5.6
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,19 +65,27 @@ OR you can just install it with WordPress by going to Plugins >> Add New >> and 
 
 == Changelog ==
 
+= 2.1.2 - September 9th, 2022 =
+
+* Fixed: Added more checks for `is_user_logged_in()` function calls to be able to handle earlier redirect debugging.
+
 = 2.1.1 - September 9th, 2022 =
+
 * Added: Now you can use debug-wp-redirect.php as an mu-plugin more easily.
 * Fixed: User ID setting was not saving properly.
 * Fixed: Resolved problems with user-restricted debugging -- sometimes redirects could not be debugged when requiring a logged in user because the plugin attempted to check for access before the user functions were available to use.
 
 = 2.1 - March 11th, 2022 =
+
 * Added new option to only show debugging if the person is logged in as specific user ID(s).
 
 = 2.0.1 - March 5th, 2022 =
+
 * Updated the text on the debug output so that it includes where the debugging is coming from and gives a handy link to admins to disable the debugging output.
 * Updated compatibility with WordPress 5.9+
 
 = 2.0 - June 4th, 2021 =
+
 * Implemented new functions `debug_wp_redirect_enable()` and `debug_wp_redirect_disable()` to easily turn debugging on programmatically.
 * Added new functionality to allow showing debugging only to those who are logged in.
 * Added settings and network settings pages for the plugin so it's easier to configure.
@@ -85,9 +93,11 @@ OR you can just install it with WordPress by going to Plugins >> Add New >> and 
 * Updated compatibility with WordPress 5.7.1
 
 = 1.1 =
+
 * Default for plugin is not to output unless `DEBUG_WP_REDIRECT` is defined and set to true
 * Updated plugin to allow for translations of text
 * Cleaned up debugging output
 
 = 1.0 =
+
 * Just a simple wp_redirect debug plugin, nothing fancy to see here
