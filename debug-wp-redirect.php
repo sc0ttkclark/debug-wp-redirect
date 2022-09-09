@@ -3,7 +3,7 @@
 Plugin Name: Debug wp_redirect()
 Plugin URI: https://www.scottkclark.com/
 Description: Stops and outputs information about redirects done on the front of a site and in the admin area with wp_redirect() and wp_safe_redirect().
-Version: 2.1.1
+Version: 2.1.2
 Author: Scott Kingsley Clark
 Author URI: https://www.scottkclark.com/
 Text Domain: debug-wp-redirect
@@ -116,11 +116,11 @@ function debug_wp_redirect_is_user_allowed() {
 		$logged_in_user_id_check = array_filter( $logged_in_user_id_check );
 
 		if ( ! empty( $logged_in_user_id_check ) ) {
-			if ( ! is_user_logged_in() ) {
+			if ( ! function_exists( 'is_user_logged_in' ) || ! is_user_logged_in() ) {
 				return false;
 			}
 
-			return function_exists( 'is_user_logged_in' ) && is_user_logged_in() && in_array( get_current_user_id(), $logged_in_user_id_check, true );
+			return in_array( (int) get_current_user_id(), $logged_in_user_id_check, true );
 		}
 	}
 
@@ -241,7 +241,7 @@ function debug_wp_redirect( $location, $status ) {
 
 	$logged_in = __( 'No', 'debug-wp-redirect' );
 
-	if ( is_user_logged_in() ) {
+	if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
 		$logged_in = __( 'Yes', 'debug-wp-redirect' );
 	}
 
@@ -251,7 +251,7 @@ function debug_wp_redirect( $location, $status ) {
 		__( 'User Logged In', 'debug-wp-redirect' ) => $logged_in,
 	];
 
-	if ( is_user_logged_in() ) {
+	if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
 		$stats[ __( 'User ID', 'debug-wp-redirect' ) ] = get_current_user_id();
 	}
 
@@ -289,7 +289,7 @@ function debug_wp_redirect( $location, $status ) {
 	);
 
 	// Maybe show the link to manage the settings.
-	if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
+	if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() && current_user_can( 'manage_options' ) ) {
 		printf(
 			'<p><a href="%1$s">%2$s &raquo;</a></p>',
 			esc_url( admin_url( 'options-general.php?page=debug-wp-redirect' ) ),
