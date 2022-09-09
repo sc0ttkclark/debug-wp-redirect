@@ -3,7 +3,7 @@ Contributors: sc0ttkclark
 Donate link: https://www.scottkclark.com/
 Tags: wp_redirect, debug, redirects
 Requires at least: 4.5
-Tested up to: 5.9
+Tested up to: 6.1
 Requires PHP: 5.6
 Stable tag: 2.1
 License: GPLv2 or later
@@ -44,6 +44,12 @@ These functions will start/stop debugging the redirects whether it's on a fronte
 * Enable debugging: `debug_wp_redirect_enable()`
 * Disable debugging: `debug_wp_redirect_disable()`
 
+= Usage: As an mu-plugin =
+
+Take the debug-wp-redirect.php file and add it to your mu-plugin folder in a location like: `/wp-content/mu-plugins/debug-wp-redirect.php`
+
+You won't need any other files. The admin settings page will not show up so you will need to use mu-plugin mode specifically with the constants for wp-config.php as documented above.
+
 = Contribute to make this plugin better =
 
 You can help to make this plugin better through [GitHub](https://github.com/sc0ttkclark/debug-wp-redirect) or [sponsor my time](https://github.com/sponsors/sc0ttkclark).
@@ -58,6 +64,11 @@ You can help to make this plugin better through [GitHub](https://github.com/sc0t
 OR you can just install it with WordPress by going to Plugins >> Add New >> and type this plugin's name
 
 == Changelog ==
+
+= 2.1.1 - September 9th, 2022 =
+* Added: Now you can use debug-wp-redirect.php as an mu-plugin more easily.
+* Fixed: User ID setting was not saving properly.
+* Fixed: Resolved problems with user-restricted debugging -- sometimes redirects could not be debugged when requiring a logged in user because the plugin attempted to check for access before the user functions were availble to use.
 
 = 2.1 - March 11th, 2022 =
 * Added new option to only show debugging if the person is logged in as specific user ID(s).
