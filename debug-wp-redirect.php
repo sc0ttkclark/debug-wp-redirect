@@ -3,7 +3,7 @@
 Plugin Name: Debug wp_redirect()
 Plugin URI: https://www.scottkclark.com/
 Description: Stops and outputs information about redirects done on the front of a site and in the admin area with wp_redirect() and wp_safe_redirect().
-Version: 2.1
+Version: 2.1.1
 Author: Scott Kingsley Clark
 Author URI: https://www.scottkclark.com/
 Text Domain: debug-wp-redirect
@@ -28,9 +28,13 @@ use Debug_WP_Redirect\Settings;
 define( 'DEBUG_WP_REDIRECT_PLUGIN_FILE', __FILE__ );
 define( 'DEBUG_WP_REDIRECT_PLUGIN_DIR', __DIR__ );
 
-if ( debug_wp_redirect_is_enabled() ) {
-	debug_wp_redirect_enable();
+function debug_wp_redirect_load() {
+    if (debug_wp_redirect_is_enabled()) {
+        debug_wp_redirect_enable();
+    }
 }
+
+add_action( 'plugins_loaded', 'debug_wp_redirect_load' );
 
 include_once DEBUG_WP_REDIRECT_PLUGIN_DIR . '/class-settings.php';
 
@@ -125,7 +129,7 @@ function debug_wp_redirect_is_user_allowed() {
 		$logged_in_check = DEBUG_WP_REDIRECT_LOGGED_IN;
 	}
 
-	// Check if we need them to be logged in to debug, but they are not logged in.
+	// Check if we need them to be logged in to debug, but they are not logged in.=
 	return ! $logged_in_check || ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() );
 }
 
