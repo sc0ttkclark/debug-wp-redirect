@@ -68,7 +68,7 @@ OR you can just install it with WordPress by going to Plugins >> Add New >> and 
 = 2.1.1 - September 9th, 2022 =
 * Added: Now you can use debug-wp-redirect.php as an mu-plugin more easily.
 * Fixed: User ID setting was not saving properly.
-* Fixed: Resolved problems with user-restricted debugging -- sometimes redirects could not be debugged when requiring a logged in user because the plugin attempted to check for access before the user functions were availble to use.
+* Fixed: Resolved problems with user-restricted debugging -- sometimes redirects could not be debugged when requiring a logged in user because the plugin attempted to check for access before the user functions were available to use.
 
 = 2.1 - March 11th, 2022 =
 * Added new option to only show debugging if the person is logged in as specific user ID(s).
