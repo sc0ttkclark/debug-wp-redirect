@@ -33,7 +33,7 @@ You can define constants in your wp-config.php file to enable redirect handling 
 * To enable redirect debugging in the admin dashboard of a site: `define( 'DEBUG_WP_REDIRECT_ADMIN', true );`
 * To only show redirect debugging to logged-in admins of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN', true );`
 * To only show redirect debugging to logged-in users of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN', true );`
-* To only show redirect debugging to logged-in user ID(s) of a site: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID', true );`
+* To only show redirect debugging to logged-in user ID(s) of a site comma-separated: `define( 'DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID', '12345,555' );`
 
 = Usage: Enabling debugging through PHP in your own code =
 
