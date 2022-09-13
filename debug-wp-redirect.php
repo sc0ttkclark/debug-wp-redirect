@@ -35,7 +35,7 @@ use Debug_WP_Redirect\Settings;
  * And then you can limit who sees the debugging messages with at least one of these:
  * define( 'DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN', true ); // Enable debugging only for admin users.
  * define( 'DEBUG_WP_REDIRECT_LOGGED_IN', true ); // Enable debugging only for logged in users (not needed if you enable DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN).
- * define( 'DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID', true ); // Enable debugging only for specific logged in user IDs (comma-separated) (the DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN and DEBUG_WP_REDIRECT_LOGGED_IN not needed).
+* define( 'DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID', '12345,555' ); // Enable debugging only for specific logged in user IDs (comma-separated) (the DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN and DEBUG_WP_REDIRECT_LOGGED_IN not needed).
  */
 
 define( 'DEBUG_WP_REDIRECT_PLUGIN_FILE', __FILE__ );
