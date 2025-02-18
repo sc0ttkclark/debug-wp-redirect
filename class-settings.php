@@ -86,6 +86,7 @@ class Settings {
 		register_setting( 'debug-wp-redirect-settings-group', 'debug_wp_redirect_enable_logged_in_admin' );
 		register_setting( 'debug-wp-redirect-settings-group', 'debug_wp_redirect_enable_logged_in' );
 		register_setting( 'debug-wp-redirect-settings-group', 'debug_wp_redirect_enable_logged_in_user_id' );
+		register_setting( 'debug-wp-redirect-settings-group', 'debug_wp_redirect_output_as_headers' );
 
 		add_settings_section( 'debug-wp-redirect-settings-general', __( 'Enable Redirect Debugging', 'debug-wp-redirect' ), null, 'debug-wp-redirect' );
 
@@ -95,7 +96,7 @@ class Settings {
 		], 'debug-wp-redirect', 'debug-wp-redirect-settings-general', [
 			'label_for' => 'debug_wp_redirect_enable_frontend',
 			'name' => 'debug_wp_redirect_enable_frontend',
-			'label' => __( 'Enable debugging', 'debug-wp-redirect' ),
+			'label' => __( 'Enable frontend debugging', 'debug-wp-redirect' ),
 			'type' => 'checkbox',
 			'description' => __( 'Enabling debugging on the frontend affects ALL submission forms like comments too.', 'debug-wp-redirect' ),
 		] );
@@ -106,9 +107,20 @@ class Settings {
 		], 'debug-wp-redirect', 'debug-wp-redirect-settings-general', [
 			'label_for' => 'debug_wp_redirect_enable_admin',
 			'name' => 'debug_wp_redirect_enable_admin',
-			'label' => __( 'Enable debugging', 'debug-wp-redirect' ),
+			'label' => __( 'Enable admin debugging', 'debug-wp-redirect' ),
 			'type' => 'checkbox',
 			'description' => __( 'Enabling debugging in the admin area affects ALL submission forms except for this settings page. Admin functionality will be broken from redirect debugging until it is turned back off.', 'debug-wp-redirect' ),
+		] );
+
+		add_settings_field( 'debug_wp_redirect_output_as_headers', __( 'Output as HTTP Headers Only', 'debug-wp-redirect' ), [
+			$this,
+			'field',
+		], 'debug-wp-redirect', 'debug-wp-redirect-settings-general', [
+			'label_for' => 'debug_wp_redirect_output_as_headers',
+			'name' => 'debug_wp_redirect_output_as_headers',
+			'label' => __( 'Enable header output', 'debug-wp-redirect' ),
+			'type' => 'checkbox',
+			'description' => __( 'Enabling this option will disable normal HTML output where the redirect stops. Instead, the redirect and backtrace information will be made available through the site headers.', 'debug-wp-redirect' ),
 		] );
 
 		add_settings_section( 'debug-wp-redirect-settings-visibility', __( 'Visibility Settings', 'debug-wp-redirect' ), null, 'debug-wp-redirect' );
@@ -119,7 +131,7 @@ class Settings {
 		], 'debug-wp-redirect', 'debug-wp-redirect-settings-visibility', [
 			'label_for' => 'debug_wp_redirect_enable_logged_in_admin',
 			'name' => 'debug_wp_redirect_enable_logged_in_admin',
-			'label' => __( 'Enable visibility', 'debug-wp-redirect' ),
+			'label' => __( 'Enable visibility for admins only', 'debug-wp-redirect' ),
 			'type' => 'checkbox',
 			'description' => __( 'If this is checked and the person is not logged in or an admin, they will be disallowed from seeing debug information.', 'debug-wp-redirect' ),
 		] );
@@ -130,7 +142,7 @@ class Settings {
 		], 'debug-wp-redirect', 'debug-wp-redirect-settings-visibility', [
 			'label_for' => 'debug_wp_redirect_enable_logged_in',
 			'name' => 'debug_wp_redirect_enable_logged_in',
-			'label' => __( 'Enable visibility', 'debug-wp-redirect' ),
+			'label' => __( 'Enable visibility for logged-in users only', 'debug-wp-redirect' ),
 			'type' => 'checkbox',
 			'description' => __( 'If this is checked and the person is not logged in, they will be disallowed from seeing debug information. If the admin-only option is enabled then this will be disregarded.', 'debug-wp-redirect' ),
 		] );

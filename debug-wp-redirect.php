@@ -3,7 +3,7 @@
 Plugin Name: Debug wp_redirect()
 Plugin URI: https://www.scottkclark.com/
 Description: Stops and outputs information about redirects done on the front of a site and in the admin area with wp_redirect() and wp_safe_redirect().
-Version: 2.1.2
+Version: 2.2
 Author: Scott Kingsley Clark
 Author URI: https://www.scottkclark.com/
 Text Domain: debug-wp-redirect
@@ -36,6 +36,9 @@ use Debug_WP_Redirect\Settings;
  * define( 'DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN', true ); // Enable debugging only for admin users.
  * define( 'DEBUG_WP_REDIRECT_LOGGED_IN', true ); // Enable debugging only for logged in users (not needed if you enable DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN).
  * define( 'DEBUG_WP_REDIRECT_LOGGED_IN_USER_ID', '12345,555' ); // Enable debugging only for specific logged in user IDs (comma-separated) (the DEBUG_WP_REDIRECT_LOGGED_IN_ADMIN and DEBUG_WP_REDIRECT_LOGGED_IN not needed).
+ *
+ * You can also choose to log the redirect information in the headers instead of stopping the redirect.
+ * define( 'DEBUG_WP_REDIRECT_HEADERS_ONLY', true ); // Log the redirect information in the headers only.
  */
 
 define( 'DEBUG_WP_REDIRECT_PLUGIN_FILE', __FILE__ );
@@ -255,6 +258,26 @@ function debug_wp_redirect( $location, $status ) {
 		$stats[ __( 'User ID', 'debug-wp-redirect' ) ] = get_current_user_id();
 	}
 
+	$backtrace = debug_backtrace();
+
+	// Take out everything after wp_redirect runs
+	unset( $backtrace[0], $backtrace[1], $backtrace[2] );
+
+	// Log the redirect information in the headers only.
+	if ( defined( 'DEBUG_WP_REDIRECT_HEADERS_ONLY' ) && DEBUG_WP_REDIRECT_HEADERS_ONLY ) {
+		foreach ( $stats as $stat => $value ) {
+			header( sprintf( 'X-Debug-WP-Redirect-%s: %s', sanitize_title( $stat ), wp_strip_all_tags( $value ) ) );
+		}
+
+		$debug_backtrace = debug_wp_redirect_backtrace_headers( $backtrace );
+
+		foreach ( $debug_backtrace as $key => $value ) {
+			header( sprintf( 'X-Debug-WP-Redirect-Backtrace-%s: %s', sanitize_title( $key ), wp_strip_all_tags( $value ) ) );
+		}
+
+		return $location;
+	}
+
 	printf(
 		'<h1>%s</h1>' . "\n",
 		esc_html__( 'Debug WP Redirect', 'debug-wp-redirect' )
@@ -268,11 +291,6 @@ function debug_wp_redirect( $location, $status ) {
 			esc_html( $value )
 		);
 	}
-
-	$backtrace = debug_backtrace();
-
-	// Take out everything after wp_redirect runs
-	unset( $backtrace[0], $backtrace[1], $backtrace[2] );
 
 	$debug_backtrace = debug_wp_redirect_backtrace( $backtrace );
 
@@ -308,7 +326,9 @@ function debug_wp_redirect( $location, $status ) {
  * @return string The backtrace output.
  */
 function debug_wp_redirect_backtrace( $backtrace ) {
-	if ( empty( $backtrace ) ) {
+	$parsed_data = debug_wp_redirect_backtrace_data( $backtrace );
+
+	if ( empty( $parsed_data ) ) {
 		return sprintf(
 			'<em>%s</em>',
 			esc_html__( 'There was an unknown PHP issue with the backtrace of wp_redirect() using debug_backtrace()', 'debug-wp-redirect' )
@@ -319,9 +339,7 @@ function debug_wp_redirect_backtrace( $backtrace ) {
 		'<ul>',
 	);
 
-	$level = 1;
-
-	foreach ( $backtrace as $function ) {
+	foreach ( $parsed_data as $level => $backtrace_level ) {
 		$debug_backtrace[] = "\t" . '<li>';
 
 		$debug_backtrace[] = sprintf(
@@ -336,34 +354,34 @@ function debug_wp_redirect_backtrace( $backtrace ) {
 
 		$stats = array();
 
-		if ( isset( $function['file'] ) ) {
-			$stats[ __( 'File', 'debug-wp-redirect' ) ] = $function['file'];
+		if ( isset( $backtrace_level['file'] ) ) {
+			$stats[ __( 'File', 'debug-wp-redirect' ) ] = $backtrace_level['file'];
 		}
 
-		if ( isset( $function['line'] ) ) {
+		if ( isset( $backtrace_level['line'] ) ) {
 			$stats[ __( 'Line', 'debug-wp-redirect' ) ] = sprintf(
 				'#%s',
-				$function['line']
+				$backtrace_level['line']
 			);
 		}
 
-		if ( isset( $function['class'] ) ) {
-			$stats[ __( 'Class', 'debug-wp-redirect' ) ] = $function['class'];
+		if ( isset( $backtrace_level['class'] ) ) {
+			$stats[ __( 'Class', 'debug-wp-redirect' ) ] = $backtrace_level['class'];
 		}
 
-		if ( isset( $function['object'] ) ) {
-			if ( is_object( $function['object'] ) ) {
-				$function['object'] = get_class( $function['object'] );
+		if ( isset( $backtrace_level['object'] ) ) {
+			if ( is_object( $backtrace_level['object'] ) ) {
+				$backtrace_level['object'] = get_class( $backtrace_level['object'] );
 			}
 
-			$stats[ __( 'Object', 'debug-wp-redirect' ) ] = $function['object'];
+			$stats[ __( 'Object', 'debug-wp-redirect' ) ] = $backtrace_level['object'];
 		}
 
-		if ( isset( $function['type'] ) ) {
-			$stats[ __( 'Type', 'debug-wp-redirect' ) ] = $function['type'];
+		if ( isset( $backtrace_level['type'] ) ) {
+			$stats[ __( 'Type', 'debug-wp-redirect' ) ] = $backtrace_level['type'];
 		}
 
-		$stats[ __( 'Function', 'debug-wp-redirect' ) ] = $function['function'];
+		$stats[ __( 'Function', 'debug-wp-redirect' ) ] = $backtrace_level['function'];
 
 		foreach ( $stats as $stat => $value ) {
 			$debug_backtrace[] = sprintf(
@@ -374,7 +392,7 @@ function debug_wp_redirect_backtrace( $backtrace ) {
 		}
 
 		ob_start();
-		var_dump( $function['args'] );
+		var_dump( $backtrace_level['args'] );
 		$args_value = ob_get_clean();
 
 		$debug_backtrace[] = sprintf(
@@ -389,11 +407,118 @@ function debug_wp_redirect_backtrace( $backtrace ) {
 
 		$debug_backtrace[] = "\t\t" . '</ul>';
 		$debug_backtrace[] = "\t" . '</li>';
-
-		$level++;
 	}
 
 	$debug_backtrace[] = '</ul>';
 
 	return implode( "\n", $debug_backtrace );
+}
+
+/**
+ * Parse debug_backtrace() array information and return in a format for headers.
+ *
+ * @since 2.2
+ *
+ * @param array $backtrace The backtrace information.
+ *
+ * @return array The backtrace headers.
+ */
+function debug_wp_redirect_backtrace_headers( $backtrace ): array {
+	$parsed_data = debug_wp_redirect_backtrace_data( $backtrace );
+
+	$headers = [];
+
+	if ( empty( $parsed_data ) ) {
+		$headers['no-backtrace'] = 1;
+
+		return $headers;
+	}
+
+	foreach ( $parsed_data as $level => $backtrace_level ) {
+		$header_key = 'level-' . str_pad($level, 2, '0', STR_PAD_LEFT);
+
+		$header_value = [];
+
+		if ( isset( $backtrace_level['file'] ) ) {
+			$header_value[] = $backtrace_level['file'];
+		}
+
+		if ( isset( $backtrace_level['line'] ) ) {
+			$header_value[] = sprintf(
+				'#%s',
+				$backtrace_level['line']
+			);
+		}
+
+		if ( isset( $backtrace_level['class'] ) ) {
+			$header_value[] = 'class[' . $backtrace_level['class'] . ']';
+		}
+
+		if ( isset( $backtrace_level['object'] ) && is_object( $backtrace_level['object'] ) ) {
+			$header_value[] = 'object[' . get_class( $backtrace_level['object'] ) . ']';
+		}
+
+		if ( isset( $backtrace_level['type'] ) ) {
+			$header_value[] = 'type[' . $backtrace_level['type'] . ']';
+		}
+
+		$header_value[] = 'function[' . $backtrace_level['function'] . ']';
+
+		$headers[ $header_key ] = implode( ' ', $header_value );
+	}
+
+	return $headers;
+}
+
+/**
+ * Parse debug_backtrace() array information.
+ *
+ * @since 2.2
+ *
+ * @param array $backtrace The backtrace information.
+ *
+ * @return array The backtrace parsed data.
+ */
+function debug_wp_redirect_backtrace_data( $backtrace ): array {
+	$parsed_data = [];
+
+	if ( empty( $backtrace ) ) {
+		return $parsed_data;
+	}
+
+	$level = 1;
+
+	foreach ( $backtrace as $function ) {
+		$backtrace_level = [];
+
+		if ( isset( $function['file'] ) ) {
+			$backtrace_level['file'] = $function['file'];
+		}
+
+		if ( isset( $function['line'] ) ) {
+			$backtrace_level['line'] = $function['line'];
+		}
+
+		if ( isset( $function['class'] ) ) {
+			$backtrace_level['class'] = $function['class'];
+		}
+
+		if ( isset( $function['object'] ) && is_object( $function['object'] ) ) {
+			$backtrace_level['object'] = get_class( $function['object'] );
+		}
+
+		if ( isset( $function['type'] ) ) {
+			$backtrace_level['type'] = $function['type'];
+		}
+
+		$backtrace_level['function'] = $function['function'];
+
+		$backtrace_level['args'] = $function['args'];
+
+		$parsed_data[ $level ] = $backtrace_level;
+
+		$level++;
+	}
+
+	return $parsed_data;
 }
