@@ -210,7 +210,33 @@ function debug_wp_redirect_is_enabled() {
 	 *
 	 * @param bool $debugging Whether the wp_redirect debugging is enabled.
 	 */
-	return apply_filters( 'debug_wp_redirect_is_enabled', $debugging );
+	return (bool) apply_filters( 'debug_wp_redirect_is_enabled', $debugging );
+}
+
+/**
+ * Determine whether the headers output is enabeld.
+ *
+ * @since 2.2
+ *
+ * @return bool Whether the headers output is enabled.
+ */
+function debug_wp_redirect_headers_only() {
+	$enabled = (
+		(
+			defined( 'DEBUG_WP_REDIRECT_HEADERS_ONLY' )
+			&& DEBUG_WP_REDIRECT_HEADERS_ONLY
+		)
+		|| 1 === (int) get_option( 'debug_wp_redirect_output_as_headers', 0 )
+	);
+
+	/**
+	 * Allow filtering whether the headers output is enabled.
+	 *
+	 * @since 2.2
+	 *
+	 * @param bool $enabled Whether the headers output is enabled.
+	 */
+	return (bool) apply_filters( 'debug_wp_redirect_headers_only', $enabled );
 }
 
 /**
@@ -264,7 +290,7 @@ function debug_wp_redirect( $location, $status ) {
 	unset( $backtrace[0], $backtrace[1], $backtrace[2] );
 
 	// Log the redirect information in the headers only.
-	if ( defined( 'DEBUG_WP_REDIRECT_HEADERS_ONLY' ) && DEBUG_WP_REDIRECT_HEADERS_ONLY ) {
+	if ( debug_wp_redirect_headers_only() ) {
 		foreach ( $stats as $stat => $value ) {
 			header( sprintf( 'X-Debug-WP-Redirect-%s: %s', sanitize_title( $stat ), wp_strip_all_tags( $value ) ) );
 		}
@@ -423,7 +449,7 @@ function debug_wp_redirect_backtrace( $backtrace ) {
  *
  * @return array The backtrace headers.
  */
-function debug_wp_redirect_backtrace_headers( $backtrace ): array {
+function debug_wp_redirect_backtrace_headers( $backtrace ) {
 	$parsed_data = debug_wp_redirect_backtrace_data( $backtrace );
 
 	$headers = [];
@@ -479,7 +505,7 @@ function debug_wp_redirect_backtrace_headers( $backtrace ): array {
  *
  * @return array The backtrace parsed data.
  */
-function debug_wp_redirect_backtrace_data( $backtrace ): array {
+function debug_wp_redirect_backtrace_data( $backtrace ) {
 	$parsed_data = [];
 
 	if ( empty( $backtrace ) ) {

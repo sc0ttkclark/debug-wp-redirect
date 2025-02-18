@@ -3,9 +3,9 @@ Contributors: sc0ttkclark
 Donate link: https://www.scottkclark.com/
 Tags: wp_redirect, debug, redirects
 Requires at least: 4.5
-Tested up to: 6.1
+Tested up to: 6.7
 Requires PHP: 5.6
-Stable tag: 2.1.2
+Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,6 +64,10 @@ You can help to make this plugin better through [GitHub](https://github.com/sc0t
 OR you can just install it with WordPress by going to Plugins >> Add New >> and type this plugin's name
 
 == Changelog ==
+
+= 2.2 - February 18th, 2025 =
+
+* Feature: You can now output the debug information as HTTP headers so the redirects continue working as expected.
 
 = 2.1.2 - September 9th, 2022 =
 
